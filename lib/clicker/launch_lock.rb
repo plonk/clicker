@@ -19,6 +19,8 @@ class LaunchLock
     return true
   rescue
     return false
+  ensure
+    FileUtils.rm(@lock_file_path)    
   end
 
   def unlock
