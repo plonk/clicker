@@ -42,6 +42,13 @@
 
 終了させたい場合は、`clicker --stop` としてください。
 
+## FAQ
+
+Q: 音がラグって気持ち良くありません。
+
+A: PulseAudio を使っているなら `/etc/pulse/daemon.conf` で
+`default-fragment-size-msec` の値を下げることを考慮してください。
+
 ## 貢献する
 
 https://github.com/plonk/clicker にリポジトリがあります。
