@@ -10,21 +10,23 @@
    ンでは、`sudo apt install evtest` でインストールされると思います。
 3. キーボードデバイスへのアクセス権限。すなわち、
    `/dev/input/by-path/platform-i8042-serio-0-event-kbd` が開ける必要
-   があります。通常、開けないので、デバイスファイルのパーミッションを
-   変更するか、ユーザーを input グループに追加してください。`sudo
-   addgroup ユーザー名 input`[^1]
+   があります。通常開けないので、デバイスファイルのパーミッションを変
+   更するか、ユーザーを適切なグループに追加してください。`sudo
+   addgroup ユーザー名 input` 等。
 4. SDL_mixer ライブラリがインストールされ、rubysdl ジェムから利用でき
    る必要があります。`sudo apt install libsdl-mixer1.2-dev` 等とした後、
    rubysdl ジェムを(再)インストールしてください。
 
-[^1]: 通常、任意のプログラムからキーボードを盗聴できるようにするのは、良い考えではありません。
-
 ## インストール
 
     $ sudo apt install evtest
-    $ sudo addgroup ユーザー input
     $ sudo apt install libsdl-mixer1.2-dev
     $ sudo gem install clicker
+
+    $ sudo addgroup ユーザー input
+    あるいは
+    $ sudo chmod o+r /dev/input/by-path/platform-i8042-serio-0-event-kbd
+
 
 ## 使い方
 
