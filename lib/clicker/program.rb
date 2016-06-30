@@ -54,20 +54,13 @@ class Program
     when :stop
       if @lock.locked?
         owner = @lock.owner
-        Process.kill("TERM", owner)
-        STDERR.puts("SIGTERM has been sent to PID #{owner}.")
-        success = false
-        sleep 0.1
-        5.times do
-          unless File.exist? @lock.lock_file_path
-            success = true
-            break
-          end
-          sleep 1
-        end
-        unless success
-          STDERR.puts("Error: failed to unlock")
-          STDERR.puts("the lock file is at #{@lock.lock_file_path}.")          
+        begin
+          Process.kill("TERM", owner)
+          STDERR.puts("SIGTERM has been sent to PID #{owner}.")
+        rescue Errno::ESRCH
+          STDERR.puts("Warning: Process (#{owner}) not found.")
+          STDERR.puts("Deleting the lock file.")
+          FileUtils.rm(@lock.lock_file_path)
         end
       else
         STDERR.puts("no instance is running.")
