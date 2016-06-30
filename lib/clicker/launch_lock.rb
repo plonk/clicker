@@ -23,17 +23,6 @@ class LaunchLock
     FileUtils.rm(@lock_file_path)    
   end
 
-  def unlock
-    File.open(@lock_file_path) do |f|
-      pid = f.gets.to_i
-      Process.kill("TERM", pid)
-    end
-    FileUtils.rm(@lock_file_path)
-    return true
-  rescue Errno::ENOENT
-    return false
-  end
-
   def locked?
     File.exist?(@lock_file_path)
   end
