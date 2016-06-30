@@ -1,17 +1,74 @@
 require_relative 'sound'
+require 'optparse'
+
+module Clicker
 
 class Program
   def initialize
+    @mode = :normal
+    OptionParser.new do |opt|
+      opt.on('--start') { @mode = :start}
+      opt.on('--stop') { @mode = :stop }
+      opt.parse!(ARGV)
+    end
+
+    @lock = LaunchLock.new('clicker')
   end
 
   def run
+    case @mode
+    when :normal
+      if @lock.try_lock
+        do_run
+      else
+        STDERR.puts("Error: another instance of clicker is running. (PID #{@lock.owner})")
+        STDERR.puts("the lock file is at #{@lock.lock_file_path}.")
+        exit 1
+      end
+    when :start
+      if !@lock.locked?
+        if fork == nil
+          if fork == nil
+            if @lock.try_lock
+              do_run
+            else
+              STDERR.puts("lock failed")
+            end
+          end
+        end
+      else
+        STDERR.puts("Error: another instance of clicker seems to be running. (PID #{@lock.owner})")
+        STDERR.puts("the lock file is at #{@lock.lock_file_path}.")
+        exit 1
+      end
+    when :stop
+      if @lock.locked?
+        if @lock.unlock
+          STDERR.puts("SIGTERM has been sent to PID #{@lock.owner}.")
+        else
+          STDERR.puts("failed to unlock")
+        end
+      else
+        STDERR.puts("no instance is running.")
+      end
+    end
+  end
+
+  def do_run
     model = KeyboardSoundModel.new
-    io = IO.popen("evtest /dev/input/by-path/platform-i8042-serio-0-event-kbd", 'r')
+    begin
+      io = IO.popen("evtest /dev/input/by-path/platform-i8042-serio-0-event-kbd", 'r')
+    rescue Errno::ENOENT
+      raise 'evtest command not found.'
+    end
+
     loop do
       IO.select([io], [], [])
 
       line = io.gets
-      if line =~ /^Event: time \d+\.\d+, type 1 \(EV_KEY\), code (\d+) \(KEY_.*?\), value (\d+)$/
+      if line == nil
+        break
+      elsif line =~ /^Event: time \d+\.\d+, type 1 \(EV_KEY\), code (\d+) \(KEY_.*?\), value (\d+)$/
         code, value = $1.to_i, $2.to_i
 
         case value
@@ -25,9 +82,15 @@ class Program
       end
       model.update
     end
+  rescue RuntimeError => e
+    STDERR.puts "Error: #{e.to_s}"
+    exit 1
+  rescue Interrupt
   end
 end
 
 if __FILE__ == $0
   Program.new.run
+end
+
 end

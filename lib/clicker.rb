@@ -1,5 +1,3 @@
 require "clicker/version"
-
-module Clicker
-  # Your code goes here...
-end
+require "clicker/program"
+require "clicker/sound"

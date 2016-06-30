@@ -1,5 +1,7 @@
 require 'sdl'
 
+module Clicker
+
 class KeyboardSoundModel
   include SDL
   
@@ -8,6 +10,12 @@ class KeyboardSoundModel
   
   def initialize
     init(INIT_AUDIO)
+
+    begin
+      SDL::Mixer
+    rescue NameError
+      raise "SDL::Mixer class not found. Make sure the rubysdl gem is built with sdl mixer."
+    end
 
     # バッファー長 128 くらいでも動作するが、pulseaudio のCPU負荷が高
     # くなるのであまり調子にのらないほうがいい。
@@ -44,4 +52,6 @@ class KeyboardSoundModel
     end
     @counts[0] = @counts[1] = 0
   end
+end
+
 end

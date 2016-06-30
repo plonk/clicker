@@ -1,4 +1,4 @@
 #!/usr/bin/env ruby
 require 'clicker'
 
-Program.new.run
+Clicker::Program.new.run

@@ -1,36 +1,46 @@
 # Clicker
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/clicker`. To experiment with that code, run `bin/console` for an interactive prompt.
+ラバードーム式とかの静かなキーボードがカチカチ言うようにするプログラム
+です。
 
-TODO: Delete this and the text above, and describe your gem
+## 要求
 
-## Installation
+1. Linux で動きます。
+2. evtest プログラム。Ubuntu のような DPKG ベースのディストリビューショ
+   ンでは、`sudo apt install evtest` でインストールされると思います。
+3. キーボードデバイスへのアクセス権限。すなわち、
+   `/dev/input/by-path/platform-i8042-serio-0-event-kbd` が開ける必要
+   があります。通常、開けないので、デバイスファイルのパーミッションを
+   変更するか、ユーザーを input グループに追加してください。`sudo
+   addgroup ユーザー名 input`[^1]
+4. SDL_mixer ライブラリがインストールされ、rubysdl ジェムから利用でき
+   る必要があります。`sudo apt install libsdl-mixer1.2-dev` 等とした後、
+   rubysdl ジェムを(再)インストールしてください。
 
-Add this line to your application's Gemfile:
+[^1]: 通常、任意のプログラムからキーボードを盗聴できるようにするのは、良い考えではありません。
 
-```ruby
-gem 'clicker'
-```
+## インストール
 
-And then execute:
+    $ sudo apt install evtest
+    $ sudo addgroup ユーザー input
+    $ sudo apt install libsdl-mixer1.2-dev
+    $ sudo gem install clicker
 
-    $ bundle
+## 使い方
 
-Or install it yourself as:
+以下のようにするとキーを押すたびに音がなるようになります。
 
-    $ gem install clicker
+    $ clicker
 
-## Usage
+バックグラウンドで実行したい場合は、
 
-TODO: Write usage instructions here
+    $ clicker --start
 
-## Development
+とします。
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+終了させたい場合は、`clicker --stop` としてください。
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+## 貢献する
 
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/clicker.
+https://github.com/plonk/clicker にリポジトリがあります。
 
