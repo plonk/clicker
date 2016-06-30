@@ -12,6 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{clicker makes your keyboard go clickety-clack.}
   spec.description   = %q{clicker makes your keyboard go clickety-clack.}
   spec.homepage      = "https://github.com/plonk/clicker"
+  spec.licenses      = "GPL-2"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "exe"
