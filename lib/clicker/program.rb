@@ -7,12 +7,18 @@ class Program
   def initialize
     @mode = :normal
     OptionParser.new do |opt|
-      opt.on('--start') { @mode = :start}
-      opt.on('--stop') { @mode = :stop }
+      opt.on('--start', 'start as a daemon') { @mode = :start}
+      opt.on('--stop', 'stop the daemon') { @mode = :stop }
+      opt.on('-v', '--version', 'print version information and exit') { print_version; exit 0 }
       opt.parse!(ARGV)
     end
 
     @lock = LaunchLock.new('clicker')
+  end
+
+  def print_version
+    STDERR.puts "clicker #{Clicker::VERSION}"
+    STDERR.puts "Copyright © 2016 Yoteichi"
   end
 
   def run
