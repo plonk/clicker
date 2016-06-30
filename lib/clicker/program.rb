@@ -18,9 +18,11 @@ class Program
   def run
     case @mode
     when :normal
-      if @lock.try_lock
+      success = @lock.try_lock do
         do_run
-      else
+      end
+
+      unless success
         STDERR.puts("Error: another instance of clicker is running. (PID #{@lock.owner})")
         STDERR.puts("the lock file is at #{@lock.lock_file_path}.")
         exit 1
@@ -29,10 +31,12 @@ class Program
       if !@lock.locked?
         if fork == nil
           if fork == nil
-            if @lock.try_lock
+            success = @lock.try_lock do 
               do_run
-            else
-              STDERR.puts("lock failed")
+            end
+            unless success 
+              # ここでは端末から切り離されているので出来ることはない。
+              exit 1
             end
           end
         end
@@ -43,8 +47,9 @@ class Program
       end
     when :stop
       if @lock.locked?
+        owner = @lock.owner
         if @lock.unlock
-          STDERR.puts("SIGTERM has been sent to PID #{@lock.owner}.")
+          STDERR.puts("SIGTERM has been sent to PID #{owner}.")
         else
           STDERR.puts("failed to unlock")
         end
