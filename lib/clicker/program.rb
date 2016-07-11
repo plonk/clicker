@@ -30,26 +30,21 @@ class Program
 
       unless success
         STDERR.puts("Error: another instance of clicker is running. (PID #{@lock.owner})")
-        STDERR.puts("the lock file is at #{@lock.lock_file_path}.")
         exit 1
       end
     when :start
-      if !@lock.locked?
+      if @lock.locked?
+        STDERR.puts("Error: another instance of clicker is running. (PID #{@lock.owner})")
+        exit 1
+      else
         if fork == nil
           if fork == nil
-            success = @lock.try_lock do 
+            @lock.try_lock do
               do_run
             end
-            unless success 
-              # ここでは端末から切り離されているので出来ることはない。
-              exit 1
-            end
+            # ここでは端末から切り離されているのでロックに失敗しても出来ることはない。
           end
         end
-      else
-        STDERR.puts("Error: another instance of clicker seems to be running. (PID #{@lock.owner})")
-        STDERR.puts("the lock file is at #{@lock.lock_file_path}.")
-        exit 1
       end
     when :stop
       if @lock.locked?
@@ -59,8 +54,6 @@ class Program
           STDERR.puts("SIGTERM has been sent to PID #{owner}.")
         rescue Errno::ESRCH
           STDERR.puts("Warning: Process (#{owner}) not found.")
-          STDERR.puts("Deleting the lock file.")
-          FileUtils.rm(@lock.lock_file_path)
         end
       else
         STDERR.puts("no instance is running.")

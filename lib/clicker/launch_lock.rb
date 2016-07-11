@@ -12,28 +12,45 @@ class LaunchLock
   end
 
   def try_lock
-    File.open(@lock_file_path, 'w') do |f|
-      f.puts Process.pid
+    File.open(@lock_file_path, 'r+') do |f|
+      success = f.flock(File::LOCK_EX | File::LOCK_NB)
+      if success
+        f.puts Process.pid
+        f.flush
+	f.truncate(f.pos)
+        yield
+        return true
+      else
+        return false
+      end
     end
-    yield
-    return true
-  rescue
-    return false
-  ensure
-    FileUtils.rm(@lock_file_path)    
   end
 
   def locked?
-    File.exist?(@lock_file_path)
+    File.open(@lock_file_path, 'r') do |f|
+      rv =  f.flock(File::LOCK_EX | File::LOCK_NB)
+      case rv
+      when 0
+	return false
+      when false
+	return true
+      end
+    end
+  rescue Errno::ENOENT
+    return false
   end
 
   def owner
-    pid = nil
     File.open(@lock_file_path) do |f|
-      pid = f.gets.to_i
+      success = f.flock(File::LOCK_EX | File::LOCK_NB)
+      if success
+        return nil # owner is not alive...
+      else
+        pid = f.gets.to_i
+        return pid
+      end
     end
-    return pid
-  rescue
+  rescue Errno::ENOENT
     return nil
   end
 end
